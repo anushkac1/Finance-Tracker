@@ -1,90 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Open Sans', sans-serif;
-            background-color: #f8f9fa;
-        }
-        .form-signin {
-            width: 100%;
-            max-width: 420px;
-            padding: 15px;
-            margin: auto;
-        }
-        .form-signin .checkbox {
-            font-weight: 400;
-        }
-        .form-signin .form-control {
-            position: relative;
-            box-sizing: border-box;
-            height: auto;
-            padding: 10px;
-            font-size: 16px;
-        }
-        .form-signin .form-control:focus {
-            z-index: 2;
-        }
-        .form-signin input[type="email"] {
-            margin-bottom: -1px;
-            border-bottom-right-radius: 0;
-            border-bottom-left-radius: 0;
-        }
-        .form-signin input[type="password"] {
-            margin-bottom: 10px;
-            border-top-left-radius: 0;
-            border-top-right-radius: 0;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-6">
-                <div class="card my-5">
-                    <div class="card-body">
-                        <h3 class="card-title text-center">Register</h3>
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                {% for category, message in messages %}
-                                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
-                        <form class="form-signin" method="post">
-                            <div class="form-label-group">
-                                <input type="email" id="inputEmail" name="email" class="form-control" placeholder="Email address" required autofocus>
-                                <label for="inputEmail">Email address</label>
-                            </div>
-                            <div class="form-label-group">
-                                <input type="password" id="inputPassword" name="password" class="form-control" placeholder="Password" required>
-                                <label for="inputPassword">Password</label>
-                            </div>
-                            <div class="form-label-group">
-                                <input type="text" id="inputFirstName" name="firstname" class="form-control" placeholder="First Name" required>
-                                <label for="inputFirstName">First Name</label>
-                            </div>
-                            <div class="form-label-group">
-                                <input type="text" id="inputLastName" name="lastname" class="form-control" placeholder="Last Name" required>
-                                <label for="inputLastName">Last Name</label>
-                            </div>
-                            <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+{% extends "base.html" %}
 
-    <!-- Bootstrap JS, Popper.js, and jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.9.1/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
+{% block title %}Register - FinTrack{% endblock %}
+
+{% block content %}
+    <main class="page registration-page">
+        <section class="clean-block clean-form dark">
+            <div class="container">
+                <div class="block-heading">
+                    <h2 class="text-info">Registration</h2>
+                </div>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form method="post" action="{{ url_for('register') }}">
+                    <div class="mb-3"><label class="form-label" for="name">Name</label><input class="form-control item"
+                                                                                              type="text" id="name"
+                                                                                              name="name"
+                                                                                              data-bs-theme="light"
+                                                                                              required></div>
+                    <div class="mb-3"><label class="form-label" for="password">Password</label><input
+                            class="form-control item" type="password" id="password" name="password"
+                            required></div>
+                    <div class="mb-3"><label class="form-label" for="email">Email</label><input
+                            class="form-control item" type="email" id="email" name="email"
+                            required></div>
+                    <button class="btn btn-primary" type="submit">Sign Up</button>
+                </form>
+            </div>
+        </section>
+    </main>
+{% endblock %}

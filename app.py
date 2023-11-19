@@ -10,36 +10,24 @@ app.config['DATABASE'] = 'finance_tracker.db'
 app.cli.add_command(init_db_command)
 app.secret_key = "TEST_SECRET"
 
-
-@app.route('/')
-def hello_world():
-    return "Hello"
-
-
-@app.route('/test')
-def hello_world1():
-    return "Failure!"
-
-
 @app.route('/register', methods = ['GET', 'POST'])
 def register():
     if request.method == 'POST':
         email = request.form['email']
+        print("Email is email")
         password = request.form['password']
-        firstname = request.form['firstname']
-        lastname = request.form['lastname']
-
+        name = request.form['name']
+        nameL = name.split()
+        firstname = nameL[0]
+        lastname = nameL[1]
         db = get_db()
         error = None
         cursor = db.cursor()
-
         cursor.execute('SELECT * FROM User WHERE Email = ?', (email,))
         emailCheck = cursor.fetchone()
-
         cursor.execute('SELECT * FROM User WHERE FirstName = ? AND LastName = ? AND Email = ?',
                        (firstname, lastname, email))
         nameEmailCheck = cursor.fetchone()
-
         if emailCheck:
             error = 'Email already registered.'
             print(error)
@@ -47,7 +35,6 @@ def register():
             error = 'A user with the same first name, last name, and email already exists.'
             print(error)
         hashed_password = sha256.hash(password)
-
         if error is None:
             try:
                 cursor.execute('INSERT INTO User (Email, Password, FirstName, LastName) VALUES (?, ?, ?, ?)',
@@ -61,32 +48,28 @@ def register():
     return render_template('register.html')
 
 
-@app.route('/login', methods = ['GET', 'POST'])
+@app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-
         db = get_db()
         cursor = db.cursor()
         cursor.execute('SELECT * FROM User WHERE Email = ?', (email,))
         user = cursor.fetchone()
-
         if user is None:
-            flash('No user found with that email address.')
+            flash('No user found with that email address.', 'danger')
             return redirect(url_for('login'))
         elif not sha256.verify(password, user['Password']):
-            flash('Incorrect password.')
+            flash('Incorrect password.', 'danger')
             return redirect(url_for('login'))
         else:
             session['loggedin'] = True
             session['userID'] = user['UserID']
             session['firstName'] = user['FirstName']
-            flash('You were successfully logged in.')
+            flash('You were successfully logged in.', 'success')
             return redirect(url_for('home'))
-
     return render_template('login.html')
-
 
 @app.route('/logout')
 def logout():
@@ -101,6 +84,10 @@ def home():
     if 'loggedin' in session:
         return render_template('home.html', user_id = session['userID'], first_name = session['firstName'])
     return redirect(url_for('login'))
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 
 if __name__ == '__main__':

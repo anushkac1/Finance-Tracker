@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>{% block title %}Home - Brand{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/bootstrap/css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,400i,700,700i,600,600i&amp;display=swap">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/baguetteBox.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/vanilla-zoom.min.css') }}">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg fixed-top bg-body clean-navbar navbar-light">
+        <div class="container">
+            <a class="navbar-brand logo" href="{{ url_for('index') }}">FinTrack</a>
+            <button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navcol-1">
+                <span class="visually-hidden">Toggle navigation</span>
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navcol-1">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('register') }}">Register</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    {% block content %}
+    <main class="page landing-page">
+    </main>
+    {% endblock %}
+    <footer class="page-footer dark">
+        <div class="footer-copyright">
+            <p>© 2023 FinTrack</p>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='assets/js/baguetteBox.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/js/vanilla-zoom.js') }}"></script>
+    <script src="{{ url_for('static', filename='assets/js/theme.js') }}"></script>
+</body>
+
+</html>
