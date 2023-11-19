@@ -67,8 +67,10 @@ def login():
             session['loggedin'] = True
             session['userID'] = user['UserID']
             session['firstName'] = user['FirstName']
+            session['lastName'] = user['LastName']
+            session['email'] = user['Email']
             flash('You were successfully logged in.', 'success')
-            return redirect(url_for('home'))
+            return redirect(url_for('dashboard'))
     return render_template('login.html')
 
 @app.route('/logout')
@@ -81,13 +83,30 @@ def logout():
 
 @app.route('/home')
 def home():
-    if 'loggedin' in session:
-        return render_template('home.html', user_id = session['userID'], first_name = session['firstName'])
+
     return redirect(url_for('login'))
+
+@app.route('/dashboard')
+def dashboard():
+    if 'loggedin' in session:
+        user = {
+            'userId': session['userID'],
+            'firstName': session['firstName'],
+            'email':session['email'],
+            'lastName': session['lastName']
+        }
+        return render_template('Authenticated/dashboard.html', user = user)
+    else:
+        flash('You must be logged in to view the dashboard.', 'danger')
+        return redirect(url_for('login'))
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/test')
+def test():
+    return render_template('Authenticated/authenticated_base.html')
 
 
 if __name__ == '__main__':
