@@ -4,33 +4,33 @@
 {% block title %}Login - FinTrack{% endblock %}
 
 {% block content %}
-<main class="page login-page">
-    <section class="clean-block clean-form dark">
-        <div class="container">
-            <div class="block-heading">
-                <h2 class="text-info">Log In</h2>
-            </div>
+    <main class="page login-page">
+        <section class="clean-block clean-form dark">
             <div class="container">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-                {% endwith %}
+                <div class="block-heading">
+                    <h2 class="text-info">Log In</h2>
+                </div>
+                <div class="container">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                </div>
+                <form method="post" action="{{ url_for('login') }}">
+                    <div class="mb-3">
+                        <label class="form-label" for="email">Email</label>
+                        <input class="form-control item" type="email" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="password">Password</label>
+                        <input class="form-control" type="password" id="password" name="password" required>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Log In</button>
+                </form>
             </div>
-            <form method="post" action="{{ url_for('login') }}">
-                <div class="mb-3">
-                    <label class="form-label" for="email">Email</label>
-                    <input class="form-control item" type="email" id="email" name="email" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label" for="password">Password</label>
-                    <input class="form-control" type="password" id="password" name="password" required>
-                </div>
-                <button class="btn btn-primary" type="submit">Log In</button>
-            </form>
-        </div>
-    </section>
-</main>
+        </section>
+    </main>
 {% endblock %}

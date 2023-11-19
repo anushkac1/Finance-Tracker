@@ -12,3 +12,5 @@ zipp==3.17.0
 Flask-Login==0.6.3
 flask-migrate==3.1.0
 flask-script==2.0.6
+
+passlib~=1.7.4

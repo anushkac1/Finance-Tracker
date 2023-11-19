@@ -103,18 +103,20 @@ def dashboard():
     currentMonth = currentdatetime.strftime('%B')
     db = get_db()
     cursor = db.cursor()
-    cursor.execute('SELECT SUM(BudgetAmount) AS TotalBudget FROM Budget WHERE Month = ? AND UserID = ?', (currentMonth, user['userId']))
+    cursor.execute('SELECT SUM(BudgetAmount) AS TotalBudget FROM Budget WHERE Month = ? AND UserID = ?',
+                   (currentMonth, user['userId']))
     budget = cursor.fetchone()
     total_budget = budget['TotalBudget']
     print(total_budget)
     return render_template('Authenticated/dashboard.html', user = user)
+
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
 
-@app.route('/profile', methods=['GET', 'POST'])
+@app.route('/profile', methods = ['GET', 'POST'])
 @login_required
 def profile():
     db = get_db()
@@ -146,7 +148,7 @@ def profile():
         'lastName': session['lastName'],
         'email': session['email']
     }
-    return render_template('Authenticated/profile.html', user=user)
+    return render_template('Authenticated/profile.html', user = user)
 
 
 if __name__ == '__main__':
