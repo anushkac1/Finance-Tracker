@@ -36,6 +36,16 @@ CREATE TABLE ExpenseItem
     FOREIGN KEY (CategoryID) REFERENCES Category (CategoryID)
 );
 
+-- ExpenseePayment table
+CREATE TABLE ExpensePaymentMethod
+(
+    ExpensePaymentID  INTEGER PRIMARY KEY AUTOINCREMENT,
+    ExpenseID         INTEGER NOT NULL,
+    PaymentMethodID   INTEGER NOT NULL,
+    FOREIGN KEY (ExpenseID) REFERENCES ExpenseItem (ExpenseID),
+    FOREIGN KEY (PaymentMethodID) REFERENCES PaymentMethod (PaymentMethodID)
+);
+
 -- PaymentMethod table
 CREATE TABLE PaymentMethod
 (
