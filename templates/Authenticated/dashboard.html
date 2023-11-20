@@ -99,6 +99,19 @@
     <div class="container mt-5">
         <h1 class="display-4">Hello, {{ user['firstName'] }}</h1>
         <div class="row">
+            <div class="d-flex justify-content-center">
+                <div class="card mb-3 w-50 border"
+                     style="border-color: {{ 'red' if 4 > 5 else 'green' }}; border-width: 2px;">
+                    <div class="card-body">
+                        <h5 class="card-title modern-card-title">Budget Alert</h5>
+                        <p class="card-text">Your spending is
+                            currently <strong>{{ 'over' if 4 > 5 else 'within' }}</strong> the budget.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
             <!-- Chart Cards -->
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="card">
@@ -112,7 +125,7 @@
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="card">
                     <div class="chart-container">
-                        <div class="chart-title">Expense Categories</div>
+                        <div class="chart-title">Expenses For The Month</div>
                         <span></span>
                         <canvas id="pieChart"></canvas>
                     </div>
@@ -132,7 +145,6 @@
         <div class="divider-line"></div>
 
         <div class="row">
-            <!-- Functional Cards with Descriptions and Buttons -->
             <div class="col-md-4 mb-4">
                 <div class="card h-100">
                     <div class="card-body d-flex flex-column justify-content-between">
@@ -161,7 +173,34 @@
                     </div>
                 </div>
             </div>
-            <!-- Additional Cards as needed -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title modern-card-title">Expense Details</h5>
+                    <input type="text" id="searchInput" class="form-control mb-3" onkeyup="" placeholder="Search for expenses...">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Amount</th>
+                            <th>Date</th>
+                            <th>Category</th>
+                            <th>Payment Method</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for expense in expenses %}
+                            <tr>
+                                <td>{{ expense.Item }}</td>
+                                <td>{{ expense.Amount }}</td>
+                                <td>{{ expense.Date }}</td>
+                                <td>{{ expense.CategoryName }}</td>
+                                <td>{{ expense.PaymentMethodName }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
