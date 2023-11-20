@@ -1,0 +1,53 @@
+{% extends 'Authenticated/authenticated_base.html' %}
+
+{% block title %}Expense Form - FinTrack{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Expense Entry</h2>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="item" class="form-label">Item</label>
+            <input type="text" class="form-control" id="item" name="item" required>
+        </div>
+        <div class="mb-3">
+            <label for="amount" class="form-label">Amount</label>
+            <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
+        </div>
+        <div class="mb-3">
+            <label for="date" class="form-label">Date</label>
+            <input type="date" class="form-control" id="date" name="date" required>
+        </div>
+        <div class="mb-3">
+            <label for="category" class="form-label">Category</label>
+            <select class="form-select" id="category" name="category" required>
+                <option value="create">Create New Category</option>
+                {% for category in categories %}
+                    <option value="{{ category.CategoryID }}">{{ category.CategoryName }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="newCategoryInput" class="mb-3" style="display: none;">
+            <label for="newCategory" class="form-label">New Category</label>
+            <input type="text" class="form-control" id="newCategory" name="newCategory">
+        </div>
+        <button type="submit" class="btn btn-primary">Add Expense</button>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const categorySelect = document.getElementById('category');
+        const newCategoryInput = document.getElementById('newCategoryInput');
+
+        categorySelect.addEventListener('change', function () {
+            if (categorySelect.value === 'create_new') {
+                newCategoryInput.style.display = 'block';
+            } else {
+                newCategoryInput.style.display = 'none';
+            }
+        });
+    });
+</script>
+{% endblock %}
