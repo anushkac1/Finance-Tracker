@@ -1,0 +1,65 @@
+{% extends 'authenticated/authenticated_base.html' %}
+
+{% block title %}Manage Payment Methods{% endblock %}
+
+{% block content %}
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    <div class="container mt-4">
+        <h2>Manage Payment Methods</h2>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="paymentMethodName" class="form-label">Add Payment Method</label>
+                <input type="text" class="form-control" id="paymentMethodName" name="paymentMethodName"
+                       placeholder="Enter new payment method name">
+            </div>
+            <button type="submit" name="add" class="btn btn-primary">Add Payment Method</button>
+        </form>
+
+        <hr>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="paymentMethodId" class="form-label">Select Payment Method to Delete</label>
+                <select class="form-select" id="paymentMethodId" name="paymentMethodId">
+                    {% for method in paymentMethods %}
+                        <option value="{{ method.PaymentMethodID }}">{{ method.PaymentMethodName }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {% if paymentMethodInUse %}
+                <div class="mb-3">
+                    <label for="replacementMethod" class="form-label">Replacement Payment Method</label>
+                    <select class="form-select" id="replacementMethod" name="replacementMethod">
+                        <option value="new">Create New Method</option>
+                        {% for method in paymentMethods %}
+                            <option value="{{ method.PaymentMethodID }}">{{ method.PaymentMethodName }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div id="newPaymentMethod" class="mb-3" style="display: none;">
+                    <label for="newPaymentMethodName" class="form-label">New Payment Method Name</label>
+                    <input type="text" class="form-control" id="newPaymentMethodName" name="newPaymentMethodName">
+                </div>
+            {% endif %}
+
+            <button type="submit" name="delete" class="btn btn-danger">Delete Payment Method</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('replacementMethod').addEventListener('change', function () {
+            var newPaymentMethodDiv = document.getElementById('newPaymentMethod');
+            newPaymentMethodDiv.style.display = this.value === 'new' ? 'block' : 'none';
+        });
+    </script>
+
+{% endblock %}

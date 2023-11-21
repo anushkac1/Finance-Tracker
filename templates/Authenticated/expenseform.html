@@ -3,9 +3,18 @@
 {% block title %}Expense Form - FinTrack{% endblock %}
 
 {% block content %}
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
 <div class="container mt-4">
-    <h2 class="mb-4">Expense Entry</h2>
-    <form method="POST">
+    <h2 class="mb-4">Expense Form</h2>
+    <form method="POST" id="expenseForm">
         <div class="mb-3">
             <label for="item" class="form-label">Item</label>
             <input type="text" class="form-control" id="item" name="item" required>
@@ -19,35 +28,50 @@
             <input type="date" class="form-control" id="date" name="date" required>
         </div>
         <div class="mb-3">
-            <label for="category" class="form-label">Category</label>
-            <select class="form-select" id="category" name="category" required>
-                <option value="create">Create New Category</option>
+            <label for="category-select" class="form-label">Category</label>
+            <select class="form-select" id="category-select" name="category">
+                <option value="">Select a Category</option>
                 {% for category in categories %}
-                    <option value="{{ category.CategoryID }}">{{ category.CategoryName }}</option>
+                <option value="{{ category.CategoryID }}">{{ category.CategoryName }}</option>
                 {% endfor %}
+                <option value="new-category">Add New Category...</option>
             </select>
+            <input type="text" class="form-control mt-3" id="new-category" name="new-category" style="display: none;"
+                placeholder="Enter new category">
         </div>
-        <div id="newCategoryInput" class="mb-3" style="display: none;">
-            <label for="newCategory" class="form-label">New Category</label>
-            <input type="text" class="form-control" id="newCategory" name="newCategory">
+        <div class="mb-3">
+            <label for="payment-method-select" class="form-label">Payment Method</label>
+            <select class="form-select" id="payment-method-select" name="payment-method">
+                <option value="">Select a Payment Method</option>
+                {% for method in payment_methods %}
+                <option value="{{ method.PaymentMethodID }}">{{ method.PaymentMethodName }}</option>
+                {% endfor %}
+                <option value="new-method">Add New Payment Method...</option>
+            </select>
+            <input type="text" class="form-control mt-3" id="new-payment-method" name="new-payment-method"
+                style="display: none;" placeholder="Enter new payment method">
         </div>
         <button type="submit" class="btn btn-primary">Add Expense</button>
-        <a href="{{ url_for('index') }}" class="btn btn-secondary">Back to Home</a>
     </form>
 </div>
+</div>
+{% endblock %}
 
+{% block extra_scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const categorySelect = document.getElementById('category');
-        const newCategoryInput = document.getElementById('newCategoryInput');
+    function toggleNewCategoryInput() {
+        var categorySelect = document.getElementById('category-select');
+        var newCategoryInput = document.getElementById('new-category');
+        newCategoryInput.style.display = categorySelect.value === 'new-category' ? 'block' : 'none';
+    }
 
-        categorySelect.addEventListener('change', function () {
-            if (categorySelect.value === 'create_new') {
-                newCategoryInput.style.display = 'block';
-            } else {
-                newCategoryInput.style.display = 'none';
-            }
-        });
-    });
+    function toggleNewPaymentMethodInput() {
+        var paymentMethodSelect = document.getElementById('payment-method-select');
+        var newPaymentMethodInput = document.getElementById('new-payment-method');
+        newPaymentMethodInput.style.display = paymentMethodSelect.value === 'new-method' ? 'block' : 'none';
+    }
+
+    document.getElementById('category-select').addEventListener('change', toggleNewCategoryInput);
+    document.getElementById('payment-method-select').addEventListener('change', toggleNewPaymentMethodInput);
 </script>
 {% endblock %}

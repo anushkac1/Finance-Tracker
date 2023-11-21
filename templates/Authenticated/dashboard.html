@@ -150,7 +150,7 @@
                     <div class="card-body d-flex flex-column justify-content-between">
                         <h5 class="card-title modern-card-title">Add Expense</h5>
                         <p class="card-text">Log new expenses to keep track of your spending.</p>
-                        <a href="expense-form.html" class="card-button">Add Expense</a>
+                        <a href="{{ url_for('expenseForm') }}" class="card-button">Add Expense</a>
                     </div>
                 </div>
             </div>
@@ -176,7 +176,8 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title modern-card-title">Expense Details</h5>
-                    <input type="text" id="searchInput" class="form-control mb-3" onkeyup="" placeholder="Search for expenses...">
+                    <input type="text" id="searchInput" class="form-control mb-3" onkeyup=""
+                           placeholder="Search for expenses...">
                     <table class="table">
                         <thead>
                         <tr>
@@ -185,6 +186,7 @@
                             <th>Date</th>
                             <th>Category</th>
                             <th>Payment Method</th>
+                            <th>Actions</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -195,6 +197,7 @@
                                 <td>{{ expense.Date }}</td>
                                 <td>{{ expense.CategoryName }}</td>
                                 <td>{{ expense.PaymentMethodName }}</td>
+                                <td>Actions</td>
                             </tr>
                         {% endfor %}
                         </tbody>
