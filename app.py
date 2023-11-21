@@ -164,7 +164,6 @@ def profile():
     }
     return render_template('Authenticated/profile.html', user = user)
 
-
 @app.route('/expense-form', methods = ['GET', 'POST'])
 @login_required
 def expenseForm():
@@ -179,14 +178,14 @@ def expenseForm():
     paymentMethods = cursor.fetchall()
 
     if request.method == 'POST':
+        print(request.form)
         item = request.form['item']
         amount = float(request.form['amount'])
         date = request.form['date']
-        selectedCategory = request.form['category-select']
+        selectedCategory = request.form['category']
         newCategoryName = request.form.get('new-category', None)
         selectedPaymentMethod = request.form['payment-method-select']
         newPaymentMethodName = request.form.get('new-payment-method', None)
-
         categoryId = None
         if selectedCategory == 'new-category' and newCategoryName:
             cursor.execute('INSERT INTO Category (CategoryName) VALUES (?)', (newCategoryName,))
@@ -222,8 +221,7 @@ def expenseForm():
 
         return redirect(url_for('dashboard'))
 
-    return render_template('Authenticated/expenseform.html', categories = categories, paymentMethods = paymentMethods)
-
+    return render_template('Authenticated/expenseform.html', categories = categories, payment_methods = paymentMethods)
 
 @app.route('/manage-payments', methods = ['GET', 'POST'])
 @login_required

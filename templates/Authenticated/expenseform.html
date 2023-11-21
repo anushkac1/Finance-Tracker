@@ -41,7 +41,7 @@
         </div>
         <div class="mb-3">
             <label for="payment-method-select" class="form-label">Payment Method</label>
-            <select class="form-select" id="payment-method-select" name="payment-method">
+            <select class="form-select" id="payment-method-select" name="payment-method-select">
                 <option value="">Select a Payment Method</option>
                 {% for method in payment_methods %}
                 <option value="{{ method.PaymentMethodID }}">{{ method.PaymentMethodName }}</option>
