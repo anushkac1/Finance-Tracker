@@ -131,16 +131,17 @@ def profile():
 
     if request.method == 'POST':
         if 'delete_profile' in request.form:
-            user_id = session['userID']
-            deleteQuery = '''
-            DELETE FROM ExpensePaymentMethod WHERE ExpenseID IN (SELECT ExpenseID FROM ExpenseItem WHERE UserID = ?);
-            DELETE FROM ExpenseItem WHERE UserID = ?;
-            DELETE FROM Budget WHERE UserID = ?;
-            DELETE FROM MonthlySummary WHERE UserID = ?;
-            DELETE FROM PaymentMethod WHERE UserID = ?;
-            DELETE FROM User WHERE UserID = ?;
-                    '''
-            cursor.executescript(deleteQuery, (user_id, user_id, user_id, user_id, user_id, user_id))
+            userID = session['userID']
+            deleteQueries = [
+                "DELETE FROM ExpensePaymentMethod WHERE ExpenseID IN (SELECT ExpenseID FROM ExpenseItem WHERE UserID = ?)",
+                "DELETE FROM ExpenseItem WHERE UserID = ?",
+                "DELETE FROM Budget WHERE UserID = ?",
+                "DELETE FROM MonthlySummary WHERE UserID = ?",
+                "DELETE FROM PaymentMethod WHERE UserID = ?",
+                "DELETE FROM User WHERE UserID = ?"
+            ]
+            for query in deleteQueries:
+                cursor.execute(query, (userID,))
             db.commit()
             session.clear()
             flash('Your account has been successfully deleted.', 'success')
