@@ -77,3 +77,5 @@ CREATE TABLE MonthlySummary
     TotalAmount REAL    NOT NULL,
     FOREIGN KEY (UserID) REFERENCES User (UserID) ON DELETE CASCADE
 );
+
+-- hi
