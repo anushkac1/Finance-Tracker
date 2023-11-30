@@ -4,7 +4,6 @@
 
 {% block content %}
 <div class="container">
-    {# idk hwo to fix the flash stuff #}
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     {% for category, message in messages %}
@@ -18,22 +17,22 @@
     <form method="POST" id="expenseForm">
         <div class="mb-3">
             <label for="item" class="form-label">Item</label>
-            <input type="text" class="form-control" id="item" name="item" required>
+            <input type="text" class="form-control" id="item" name="item" required value="{{ expense.Item }}">
         </div>
         <div class="mb-3">
             <label for="amount" class="form-label">Amount</label>
-            <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
+            <input type="number" class="form-control" id="amount" name="amount" step="0.01" required value="{{ expense.amount }}">
         </div>
         <div class="mb-3">
             <label for="date" class="form-label">Date</label>
-            <input type="date" class="form-control" id="date" name="date" required>
+            <input type="date" class="form-control" id="date" name="date" required value="{{ expense.date }}">
         </div>
         <div class="mb-3">
             <label for="category-select" class="form-label">Category</label>
             <select class="form-select" id="category-select" name="category">
                 <option value="">Select a Category</option>
                 {% for category in categories %}
-                <option value="{{ category.CategoryID }}">{{ category.CategoryName }}</option>
+                <option value="{{ category.CategoryID }}" {% if category.CategoryID == expense.CategoryID %} selected {% endif %}>{{ category.CategoryName }}</option>
                 {% endfor %}
                 <option value="new-category">Add New Category...</option>
             </select>
@@ -45,14 +44,14 @@
             <select class="form-select" id="payment-method-select" name="payment-method-select">
                 <option value="">Select a Payment Method</option>
                 {% for method in payment_methods %}
-                <option value="{{ method.PaymentMethodID }}">{{ method.PaymentMethodName }}</option>
+                <option value="{{ method.PaymentMethodID }}" {% if method.PaymentMethodID == expense.PaymentMethodID %} selected {% endif %}>{{ method.PaymentMethodName }}</option>
                 {% endfor %}
                 <option value="new-method">Add New Payment Method...</option>
             </select>
             <input type="text" class="form-control mt-3" id="new-payment-method" name="new-payment-method"
                 style="display: none;" placeholder="Enter new payment method">
         </div>
-        <button type="submit" class="btn btn-primary">Add Expense</button>
+        <button type="submit" class="btn btn-primary">Update Expense</button>
     </form>
 </div>
 </div>
