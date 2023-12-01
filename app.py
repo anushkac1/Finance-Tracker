@@ -318,6 +318,51 @@ def managePayments():
     return render_template('Authenticated/managepayments.html', paymentMethods = paymentMethods,
                            paymentMethodInUse = paymentMethodInUse)
 
+@app.route('/budget', methods=['GET', 'POST'])
+@login_required
+def budget():
+    db = get_db()
+    cursor = db.cursor()
+
+    cursor.execute('SELECT CategoryID, CategoryName FROM Category')
+    categories = cursor.fetchall()
+
+    if request.method == 'POST':
+        budget_amount = float(request.form['budgetAmount'])
+        budget_category = request.form['budgetCategory']
+
+        if budget_category == 'new-category':
+            new_category_name = request.form['newCategoryName'].strip()
+
+            if new_category_name:
+                try:
+                    cursor.execute('INSERT INTO Category (CategoryName) VALUES (?)', (new_category_name,))
+                    db.commit()
+
+                    cursor.execute('SELECT last_insert_rowid()')
+                    new_category_id = cursor.fetchone()[0]
+
+                    cursor.execute('INSERT INTO Budget (UserID, CategoryID, Month, BudgetAmount) VALUES (?, ?, ?, ?)',
+                                   (session['userID'], new_category_id, 'current_month', budget_amount))
+                    db.commit()
+
+                    flash('Monthly budget set successfully.', 'success')
+                except Exception as e:
+                    print(e)
+                    flash('Something went wrong, please try again!', 'danger')
+            else:
+                flash('Please enter a valid new category name.', 'danger')
+        else:
+            try:
+                flash('Monthly budget set successfully.', 'success')
+            except Exception as e:
+                print(e)
+                flash('Something went wrong, please try again!', 'danger')
+
+        return redirect(url_for('dashboard'))
+
+    return render_template('Authenticated/budget.html', categories=categories)
+
 
 if __name__ == '__main__':
     app.run()

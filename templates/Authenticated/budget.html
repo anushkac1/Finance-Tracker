@@ -1,0 +1,38 @@
+{% extends 'Authenticated/authenticated_base.html' %}
+
+{% block title %}Monthly Budget Form - FinTrack{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+</div>
+<div class="container mt-4">
+    <h2 class="mb-4">Monthly Budget Form</h2>
+    <form method="POST" id="budgetForm" action="{{ url_for('budget') }}">
+        <div class="mb-3">
+            <label for="budgetAmount" class="form-label">Budget Amount</label>
+            <input type="number" class="form-control" id="budgetAmount" name="budgetAmount" step="0.01" required>
+        </div>
+        <div class="mb-3">
+            <label for="category-select" class="form-label">Category</label>
+            <select class="form-select" id="category-select" name="budgetCategory">
+                <option value="">Select a Category</option>
+                {% for category in categories %}
+                    <option value="{{ category.CategoryID }}">{{ category.CategoryName }}</option>
+                {% endfor %}
+                <option value="new-category">Add New Category...</option>
+            </select>
+            <input type="text" class="form-control mt-3" id="new-category" name="newCategoryName" style="display: none;"
+                placeholder="Enter new category">
+        </div>
+        <button type="submit" class="btn btn-primary">Set Monthly Budget</button>
+    </form>
+</div>
+</div>
+{% endblock %}

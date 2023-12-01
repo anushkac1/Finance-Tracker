@@ -168,8 +168,7 @@
                     <div class="card-body d-flex flex-column justify-content-between">
                         <h5 class="card-title modern-card-title">Monthly Budget</h5>
                         <p class="card-text">Set and view your monthly budget to control spending.</p>
-                        <p class="card-text"><strong>This month's budget: ${{ current_month_budget }}</strong></p>
-                        <a href="#" class="card-button">View Budget</a>
+                        <a href="{{ url_for('budget') }}" class="card-button">Add Budget</a>
                     </div>
                 </div>
             </div>
