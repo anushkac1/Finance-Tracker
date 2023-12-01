@@ -28,6 +28,16 @@
             <div class="mb-3">
                 <label for="paymentMethodId" class="form-label">Select Payment Method to Delete</label>
                 <select class="form-select" id="paymentMethodId" name="paymentMethodId">
+                    {% if paymentMethodInUse %}
+                        <div class="alert alert-warning">
+                            <strong>Warning:</strong> These expenses are associated with this payment method and need a replacement.
+                        </div>
+                        <ul>
+                            {% for item in expenseItems %}
+                                <li>{{ item.Item }} - Amount: {{ item.Amount }} on {{ item.Date }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
                     {% for method in paymentMethods %}
                         <option value="{{ method.PaymentMethodID }}">{{ method.PaymentMethodName }}</option>
                     {% endfor %}
@@ -55,11 +65,17 @@
         </form>
     </div>
 
-    <script>
-        document.getElementById('replacementMethod').addEventListener('change', function () {
-            var newPaymentMethodDiv = document.getElementById('newPaymentMethod');
-            newPaymentMethodDiv.style.display = this.value === 'new' ? 'block' : 'none';
+{% endblock %}
+
+{% block extra_scripts %}
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.body.addEventListener('change', function (event) {
+                if (event.target && event.target.id === 'replacementMethod') {
+                    var newPaymentMethodDiv = document.getElementById('newPaymentMethod');
+                    newPaymentMethodDiv.style.display = event.target.value === 'new' ? 'block' : 'none';
+                }
+            });
         });
     </script>
-
 {% endblock %}
