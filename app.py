@@ -13,6 +13,23 @@ app.cli.add_command(init_db_command)
 app.secret_key = "TEST_SECRET"
 
 
+# @app.route('/method_page', methods=['GET', 'POST'])
+# def method_page():
+#     if request.method == 'POST':
+#         # Handle the form submission here
+#         # You can access form data using request.form
+#         # Example: payment_method_name = request.form['method']
+#         # Perform any necessary processing or database operations
+#
+#         # You can add a flash message here if needed
+#         flash('Payment method added successfully!', 'success')
+#
+#         # Optionally, you can render the same page with a message
+#         return render_template('method.html')
+#
+#     return render_template('method.html')
+
+
 @app.route('/register', methods = ['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -224,6 +241,32 @@ def expenseForm():
 
     return render_template('Authenticated/expenseform.html', categories = categories, payment_methods = paymentMethods)
 
+
+# here
+# @app.route('/method', methods=['GET', 'POST'])
+# @login_required
+# def method():
+#     db = get_db()
+#     cursor = db.cursor()
+#
+#     if request.method == 'POST':
+#         payment_method_name = request.form['method']
+#
+#         # Perform any necessary processing or database operations
+#         try:
+#             cursor.execute('INSERT INTO PaymentMethod (PaymentMethodName, UserID) VALUES (?, ?)',
+#                            (payment_method_name, session['userID']))
+#             db.commit()
+#
+#             flash('Payment method added successfully!', 'success')
+#         except Exception as e:
+#             print(e)  # Log the error for debugging purposes
+#             flash('An error occurred while adding the payment method. Please try again.', 'danger')
+#
+#         return redirect(url_for('dashboard'))  # Redirect to the dashboard or another page
+#
+#     return render_template('Authenticated/method.html')
+
 @app.route('/manage-payments', methods = ['GET', 'POST'])
 @login_required
 def managePayments():
@@ -248,16 +291,17 @@ def managePayments():
             db.commit()
         cursor.execute('DELETE FROM PaymentMethod WHERE PaymentMethodID = ?', (paymentMethodIdToDelete,))
         db.commit()
-        flash('Payment method deleted and replaced successfully.', 'success')
+        flash('Payment method deleted successfully.', 'success')
     elif "add" in request.form:
         paymentMethodName = request.form['paymentMethodName']
         print(paymentMethodName)
         cursor.execute('SELECT * FROM PaymentMethod WHERE PaymentMethodName = ?', (paymentMethodName,))
         if cursor.fetchone():
-            flash("Payment has already been added", 'danger')
+            flash("Error: Payment has already been added!", 'danger')
         else:
             cursor.execute('INSERT INTO PaymentMethod (UserID, PaymentMethodName) VALUES (?,?)',
                            (id, paymentMethodName))
+            flash('Payment method added successfully.', 'success')
             db.commit()
     cursor.execute('SELECT * FROM PaymentMethod WHERE UserID = ?', (session['userID'],))
     paymentMethods = cursor.fetchall()

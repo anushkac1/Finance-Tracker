@@ -78,4 +78,3 @@ CREATE TABLE MonthlySummary
     FOREIGN KEY (UserID) REFERENCES User (UserID) ON DELETE CASCADE
 );
 
--- hi
