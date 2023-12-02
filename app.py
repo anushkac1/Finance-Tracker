@@ -97,6 +97,9 @@ def home():
     return redirect(url_for('login'))
 
 
+# Add necessary imports
+from flask import render_template
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
@@ -107,15 +110,19 @@ def dashboard():
         'lastName': session['lastName']
     }
 
-    currentdatetime = datetime.now()
-    currentMonth = currentdatetime.strftime('%B')
     db = get_db()
     cursor = db.cursor()
+    cursor.execute('SELECT * FROM ExpenseItem WHERE UserID = ?', (user['userId'],))
+    expenses = cursor.fetchall()
+
+    currentdatetime = datetime.now()
+    currentMonth = currentdatetime.strftime('%B')
     cursor.execute('SELECT SUM(BudgetAmount) AS TotalBudget FROM Budget WHERE Month = ? AND UserID = ?',
                    (currentMonth, user['userId']))
     budget = cursor.fetchone()
     totalBudget = budget['TotalBudget']
-    return render_template('Authenticated/dashboard.html', user = user)
+
+    return render_template('Authenticated/dashboard.html', user=user, expenses=expenses)
 
 
 @app.route('/')
@@ -336,17 +343,23 @@ def budget():
 
             if new_category_name:
                 try:
-                    cursor.execute('INSERT INTO Category (CategoryName) VALUES (?)', (new_category_name,))
-                    db.commit()
+                    cursor.execute('SELECT * FROM Category WHERE CategoryName = ?', (new_category_name,))
+                    existing_category = cursor.fetchone()
 
-                    cursor.execute('SELECT last_insert_rowid()')
-                    new_category_id = cursor.fetchone()[0]
+                    if not existing_category:
+                        cursor.execute('INSERT INTO Category (CategoryName) VALUES (?)', (new_category_name,))
+                        db.commit()
 
-                    cursor.execute('INSERT INTO Budget (UserID, CategoryID, Month, BudgetAmount) VALUES (?, ?, ?, ?)',
-                                   (session['userID'], new_category_id, 'current_month', budget_amount))
-                    db.commit()
+                        cursor.execute('SELECT last_insert_rowid()')
+                        new_category_id = cursor.fetchone()[0]
 
-                    flash('Monthly budget set successfully.', 'success')
+                        cursor.execute('INSERT INTO Budget (UserID, CategoryID, Month, BudgetAmount) VALUES (?, ?, ?, ?)',
+                                       (session['userID'], new_category_id, 'current_month', budget_amount))
+                        db.commit()
+
+                        flash('Monthly budget set successfully.', 'success')
+                    else:
+                        flash('Category already exists. Please select it from the dropdown.', 'danger')
                 except Exception as e:
                     print(e)
                     flash('Something went wrong, please try again!', 'danger')

@@ -46,7 +46,6 @@
             width: 100% !important;
             max-width: 100%;
             margin-top: 40px;
-            /* Space from the title */
         }
 
         .divider-line {
@@ -89,9 +88,9 @@
         }
 
         .display-4 {
-            font-size: 3rem; /* Adjust the font size as needed */
-            color: #000000; /* Text color */
-            margin-bottom: 20px; /* Spacing below the header */
+            font-size: 3rem;
+            color: #000000;
+            margin-bottom: 20px;
         }
     </style>
 {% endblock %}
@@ -208,10 +207,6 @@
 {% block extra_scripts %}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Example code for initializing Chart.js charts
-            // Replace this with your actual data and options
-
-            // Bar Chart Initialization
             const ctxBar = document.getElementById('barChart').getContext('2d');
             const gradientBar = createGradient(ctxBar, 'rgba(54, 162, 235, 0.8)', 'rgba(54, 162, 235, 0.4)');
             const barChart = new Chart(ctxBar, {
