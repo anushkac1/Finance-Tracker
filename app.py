@@ -112,7 +112,14 @@ def dashboard():
 
     db = get_db()
     cursor = db.cursor()
-    cursor.execute('SELECT * FROM ExpenseItem WHERE UserID = ?', (user['userId'],))
+    cursor.execute('''
+        SELECT E.Item, E.Amount, E.Date, C.CategoryName, PM.PaymentMethodName
+        FROM ExpenseItem E
+        LEFT JOIN Category C ON E.CategoryID = C.CategoryID
+        LEFT JOIN ExpensePaymentMethod EMP ON E.ExpenseID = EMP.ExpenseID
+        LEFT JOIN PaymentMethod PM ON EMP.PaymentMethodID = PM.PaymentMethodID
+        WHERE E.UserID = ?
+    ''', (user['userId'],))
     expenses = cursor.fetchall()
 
     currentdatetime = datetime.now()
@@ -375,6 +382,24 @@ def budget():
         return redirect(url_for('dashboard'))
 
     return render_template('Authenticated/budget.html', categories=categories)
+
+# @app.route('/deleteexp/<int:expenseID>', methods=['POST', 'DELETE'])
+# @login_required
+# def deleteexp(expenseID):
+#     db = get_db()
+#     cursor = db.cursor()
+#
+#     if request.method in ['POST', 'DELETE']:
+#         cursor.execute('DELETE FROM Category WHERE CategoryID IN (SELECT CategoryID FROM ExpenseItem WHERE ExpenseID = ?)',
+#                        (expenseID,))
+#         db.commit()
+#
+#         cursor.execute('DELETE FROM ExpenseItem WHERE ExpenseID = ? AND UserID = ?', (expenseID, session['userID']))
+#         db.commit()
+#
+#         flash('Expense deleted!', 'success')
+#
+#     return redirect(url_for('dashboard'))
 
 
 if __name__ == '__main__':

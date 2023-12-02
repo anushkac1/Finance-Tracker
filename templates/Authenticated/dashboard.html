@@ -182,7 +182,6 @@
                             <th>Date</th>
                             <th>Category</th>
                             <th>Payment Method</th>
-                            <th>Actions</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -191,9 +190,8 @@
                                 <td>{{ expense.Item }}</td>
                                 <td>{{ expense.Amount }}</td>
                                 <td>{{ expense.Date }}</td>
-                                <td>{{ expense.CategoryName }}</td>
-                                <td>{{ expense.PaymentMethodName }}</td>
-                                <td>Actions</td>
+                                <td>{{ expense.CategoryName if expense.CategoryName else 'N/A' }}</td>
+                                <td>{{ expense.PaymentMethodName if expense.PaymentMethodName else 'N/A' }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
