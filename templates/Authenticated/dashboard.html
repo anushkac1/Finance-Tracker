@@ -103,14 +103,13 @@
                      style="border-color: {{ 'red' if 4 > 5 else 'green' }}; border-width: 2px;">
                     <div class="card-body">
                         <h5 class="card-title modern-card-title">Budget Alert</h5>
-                        <p class="card-text">Your spending is
-                            currently <strong>{{ 'over' if 4 > 5 else 'within' }}</strong> the budget.</p>
+                        <p class="card-text">Your total spending is currently <strong>{{ budgetStatus }}</strong> the total budget.</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="row mt-4">
+        <div class="row mt-2">
             <!-- Chart Cards -->
             <div class="col-lg-4 col-md-6 mb-4">
                 <div class="card">
@@ -127,14 +126,6 @@
                         <div class="chart-title">Expenses For The Month</div>
                         <span></span>
                         <canvas id="pieChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="card">
-                    <div class="chart-container">
-                        <div class="chart-title">Yearly Savings</div>
-                        <canvas id="lineChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -258,32 +249,6 @@
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-
-            // Line Chart Initialization
-            const ctxLine = document.getElementById('lineChart').getContext('2d');
-            const gradientLine = createGradient(ctxLine, 'rgba(75, 192, 192, 0.8)', 'rgba(75, 192, 192, 0.4)');
-            const lineChart = new Chart(ctxLine, {
-                type: 'line',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [{
-                        label: 'Savings',
-                        data: [200, 300, 400, 500, 600, 700],
-                        backgroundColor: gradientLine,
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        fill: true
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
                     responsive: true,
                     maintainAspectRatio: false
                 }

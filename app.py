@@ -96,10 +96,6 @@ def logout():
 def home():
     return redirect(url_for('login'))
 
-
-# Add necessary imports
-from flask import render_template
-
 @app.route('/dashboard')
 @login_required
 def dashboard():
@@ -109,7 +105,6 @@ def dashboard():
         'email': session['email'],
         'lastName': session['lastName']
     }
-
     db = get_db()
     cursor = db.cursor()
     cursor.execute('''
@@ -124,14 +119,19 @@ def dashboard():
     for expense in expenses:
         expense_list = list(expense)
         print(expense_list)
-    currentdatetime = datetime.now()
-    currentMonth = currentdatetime.strftime('%B')
-    cursor.execute('SELECT SUM(BudgetAmount) AS TotalBudget FROM Budget WHERE Month = ? AND UserID = ?',
-                   (currentMonth, user['userId']))
-    budget = cursor.fetchone()
-    totalBudget = budget['TotalBudget']
-
-    return render_template('Authenticated/dashboard.html', user=user, expenses=expenses)
+    currentMonth = datetime.now().strftime('%B')
+    cursor.execute(
+        '''SELECT SUM(BudgetAmount) FROM Budget 
+           WHERE UserID = ? AND Month = ?''',
+        (user['userId'], currentMonth))
+    totalBudget = cursor.fetchone()[0] or 0
+    cursor.execute(
+        '''SELECT SUM(Amount) FROM ExpenseItem 
+           WHERE UserID = ? AND strftime('%m', Date) = strftime('%m', 'now')''',
+        (user['userId'],))
+    totalSpending = cursor.fetchone()[0] or 0
+    budgetStatus = 'over' if totalSpending > totalBudget else 'within'
+    return render_template('Authenticated/dashboard.html', user=user, expenses=expenses, budgetStatus=budgetStatus, totalBudget=totalBudget,totalSpending=totalSpending)
 
 
 @app.route('/')
