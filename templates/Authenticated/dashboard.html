@@ -178,10 +178,11 @@
                         <thead>
                         <tr>
                             <th>Item</th>
-                            <th>Amount</th>
+                            <th>($) Amount</th>
                             <th>Date</th>
                             <th>Category</th>
                             <th>Payment Method</th>
+                            <th>Actions</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -192,9 +193,17 @@
                                 <td>{{ expense.Date }}</td>
                                 <td>{{ expense.CategoryName if expense.CategoryName else 'N/A' }}</td>
                                 <td>{{ expense.PaymentMethodName if expense.PaymentMethodName else 'N/A' }}</td>
+                                <td>
+                                    <a href="{{ url_for('editExpense', expenseID=expense.ExpenseID) }}"
+                                       class="btn btn-sm btn-primary">Edit</a>
+                                    <a href="{{ url_for('deleteExpense', expense_id=expense.ExpenseID) }}"
+                                       class="btn btn-sm btn-danger"
+                                       onclick="return confirm('Are you sure?');">Delete</a>
+                                </td>
                             </tr>
                         {% endfor %}
                         </tbody>
+
                     </table>
                 </div>
             </div>

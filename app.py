@@ -113,7 +113,7 @@ def dashboard():
     db = get_db()
     cursor = db.cursor()
     cursor.execute('''
-        SELECT E.Item, E.Amount, E.Date, C.CategoryName, PM.PaymentMethodName
+        SELECT E.Item, E.Amount, E.Date, C.CategoryName, PM.PaymentMethodName, EMP.ExpenseID
         FROM ExpenseItem E
         LEFT JOIN Category C ON E.CategoryID = C.CategoryID
         LEFT JOIN ExpensePaymentMethod EMP ON E.ExpenseID = EMP.ExpenseID
@@ -121,7 +121,9 @@ def dashboard():
         WHERE E.UserID = ?
     ''', (user['userId'],))
     expenses = cursor.fetchall()
-
+    for expense in expenses:
+        expense_list = list(expense)
+        print(expense_list)
     currentdatetime = datetime.now()
     currentMonth = currentdatetime.strftime('%B')
     cursor.execute('SELECT SUM(BudgetAmount) AS TotalBudget FROM Budget WHERE Month = ? AND UserID = ?',
@@ -383,24 +385,17 @@ def budget():
 
     return render_template('Authenticated/budget.html', categories=categories)
 
-# @app.route('/deleteexp/<int:expenseID>', methods=['POST', 'DELETE'])
-# @login_required
-# def deleteexp(expenseID):
-#     db = get_db()
-#     cursor = db.cursor()
-#
-#     if request.method in ['POST', 'DELETE']:
-#         cursor.execute('DELETE FROM Category WHERE CategoryID IN (SELECT CategoryID FROM ExpenseItem WHERE ExpenseID = ?)',
-#                        (expenseID,))
-#         db.commit()
-#
-#         cursor.execute('DELETE FROM ExpenseItem WHERE ExpenseID = ? AND UserID = ?', (expenseID, session['userID']))
-#         db.commit()
-#
-#         flash('Expense deleted!', 'success')
-#
-#     return redirect(url_for('dashboard'))
+@app.route('/delete-expense/<int:expense_id>', methods=['GET'])
+@login_required
+def deleteExpense(expense_id):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('DELETE FROM ExpensePaymentMethod WHERE ExpenseID = ?', (expense_id,))
+    db.commit()
+    cursor.execute('DELETE FROM ExpenseItem WHERE ExpenseID = ? AND UserID = ?', (expense_id, session['userID']))
+    db.commit()
 
-
+    flash('Expense deleted successfully.', 'success')
+    return redirect(url_for('dashboard'))
 if __name__ == '__main__':
     app.run()
