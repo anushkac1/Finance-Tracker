@@ -1,7 +1,8 @@
 import sqlite3
 from datetime import datetime
+import calendar
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from passlib.hash import pbkdf2_sha256 as sha256
 
 from db import get_db, init_db_command
@@ -116,9 +117,7 @@ def dashboard():
         WHERE E.UserID = ?
     ''', (user['userId'],))
     expenses = cursor.fetchall()
-    for expense in expenses:
-        expense_list = list(expense)
-        print(expense_list)
+
     currentMonth = datetime.now().strftime('%B')
     cursor.execute(
         '''SELECT SUM(BudgetAmount) FROM Budget 
@@ -131,7 +130,20 @@ def dashboard():
         (user['userId'],))
     totalSpending = cursor.fetchone()[0] or 0
     budgetStatus = 'over' if totalSpending > totalBudget else 'within'
-    return render_template('Authenticated/dashboard.html', user=user, expenses=expenses, budgetStatus=budgetStatus, totalBudget=totalBudget,totalSpending=totalSpending)
+
+    cursor.execute('''
+        SELECT strftime('%m', Date) as Month, SUM(Amount) as TotalAmount
+        FROM ExpenseItem 
+        WHERE UserID = ? 
+        GROUP BY Month
+    ''', (user['userId'],))
+    monthly_expenses = cursor.fetchall()
+    month_labels = [calendar.month_abbr[int(expense['Month'])] for expense in monthly_expenses]
+    expense_amounts = [expense['TotalAmount'] for expense in monthly_expenses]
+
+    return render_template('Authenticated/dashboard.html', user=user, expenses=expenses, budgetStatus=budgetStatus,
+                           totalBudget=totalBudget, totalSpending=totalSpending,
+                           month_labels=month_labels, expense_amounts=expense_amounts)
 
 
 @app.route('/')
@@ -384,6 +396,7 @@ def budget():
         return redirect(url_for('dashboard'))
 
     return render_template('Authenticated/budget.html', categories=categories)
+
 
 @app.route('/delete-expense/<int:expense_id>', methods=['GET'])
 @login_required

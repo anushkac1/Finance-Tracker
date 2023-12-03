@@ -204,31 +204,31 @@
 
 {% block extra_scripts %}
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const ctxBar = document.getElementById('barChart').getContext('2d');
-            const gradientBar = createGradient(ctxBar, 'rgba(54, 162, 235, 0.8)', 'rgba(54, 162, 235, 0.4)');
-            const barChart = new Chart(ctxBar, {
-                type: 'bar',
-                data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [{
-                        label: 'Expenses',
-                        data: [1200, 1900, 800, 1600, 2000, 1500],
-                        backgroundColor: gradientBar,
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
+            document.addEventListener('DOMContentLoaded', function () {
+        const ctxBar = document.getElementById('barChart').getContext('2d');
+        const gradientBar = createGradient(ctxBar, 'rgba(54, 162, 235, 0.8)', 'rgba(54, 162, 235, 0.4)');
+        const barChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: {{ month_labels | tojson }},
+                datasets: [{
+                    label: 'Expenses',
+                    data: {{ expense_amounts | tojson }},
+                    backgroundColor: gradientBar,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
                 },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    },
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
 
             // Pie Chart Initialization
             const ctxPie = document.getElementById('pieChart').getContext('2d');
@@ -261,6 +261,7 @@
                 gradient.addColorStop(1, colorEnd);
                 return gradient;
             }
+
         });
     </script>
 {% endblock %}
