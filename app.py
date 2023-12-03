@@ -12,7 +12,7 @@ app.config['DATABASE'] = 'finance_tracker.db'
 app.cli.add_command(init_db_command)
 app.secret_key = "TEST_SECRET"
 
-
+#--
 @app.route('/register', methods = ['GET', 'POST'])
 def register():
     if request.method == 'POST':
