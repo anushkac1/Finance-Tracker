@@ -43,7 +43,6 @@ def register():
                 cursor.execute('INSERT INTO User (Email, Password, FirstName, LastName) VALUES (?, ?, ?, ?)',
                                (email, hashedPwd, firstname, lastname))
                 db.commit()
-                # Set session variables after successful registration and login
                 cursor.execute('SELECT * FROM User WHERE Email = ?', (email,))
                 user = cursor.fetchone()
                 session['loggedin'] = True
@@ -54,7 +53,7 @@ def register():
                 flash('Registration successful. You are now logged in.', 'success')
                 return redirect(url_for('dashboard'))
             except sqlite3.IntegrityError as e:
-                error = 'An unexpected error occurred. Please try again.'
+                error = 'Oops something went wrong! Please try again.'
         if error:
             flash('There was an error registering you. Try again', 'danger')
     return render_template('register.html')
@@ -108,13 +107,14 @@ def dashboard():
     }
     db = get_db()
     cursor = db.cursor()
+
     cursor.execute('''
         SELECT E.Item, E.Amount, E.Date, C.CategoryName, PM.PaymentMethodName, EMP.ExpenseID
         FROM ExpenseItem E
         LEFT JOIN Category C ON E.CategoryID = C.CategoryID
         LEFT JOIN ExpensePaymentMethod EMP ON E.ExpenseID = EMP.ExpenseID
         LEFT JOIN PaymentMethod PM ON EMP.PaymentMethodID = PM.PaymentMethodID
-        WHERE E.UserID = ?
+        WHERE E.UserID = ? AND strftime('%m', E.Date) = strftime('%m', 'now')
     ''', (user['userId'],))
     expenses = cursor.fetchall()
 
@@ -171,7 +171,7 @@ def profile():
                 cursor.execute(query, (userID,))
             db.commit()
             session.clear()
-            flash('Your account has been successfully deleted.', 'success')
+            flash('Your account has been successfully deleted!', 'success')
             return redirect(url_for('register'))
         elif 'save_changes' in request.form:
             firstname = request.form.get('firstName')
@@ -357,41 +357,16 @@ def budget():
 
     if request.method == 'POST':
         budget_amount = float(request.form['budgetAmount'])
-        budget_category = request.form['budgetCategory']
 
-        if budget_category == 'new-category':
-            new_category_name = request.form['newCategoryName'].strip()
+        try:
+            cursor.execute('INSERT INTO Budget (UserID, CategoryID, Month, BudgetAmount) VALUES (?, ?, ?, ?)',
+                           (session['userID'], None, 'current_month', budget_amount))
+            db.commit()
 
-            if new_category_name:
-                try:
-                    cursor.execute('SELECT * FROM Category WHERE CategoryName = ?', (new_category_name,))
-                    existing_category = cursor.fetchone()
-
-                    if not existing_category:
-                        cursor.execute('INSERT INTO Category (CategoryName) VALUES (?)', (new_category_name,))
-                        db.commit()
-
-                        cursor.execute('SELECT last_insert_rowid()')
-                        new_category_id = cursor.fetchone()[0]
-
-                        cursor.execute('INSERT INTO Budget (UserID, CategoryID, Month, BudgetAmount) VALUES (?, ?, ?, ?)',
-                                       (session['userID'], new_category_id, 'current_month', budget_amount))
-                        db.commit()
-
-                        flash('Monthly budget set successfully.', 'success')
-                    else:
-                        flash('Category already exists. Please select it from the dropdown.', 'danger')
-                except Exception as e:
-                    print(e)
-                    flash('Something went wrong, please try again!', 'danger')
-            else:
-                flash('Please enter a valid new category name.', 'danger')
-        else:
-            try:
-                flash('Monthly budget set successfully.', 'success')
-            except Exception as e:
-                print(e)
-                flash('Something went wrong, please try again!', 'danger')
+            flash('Monthly budget set successfully!', 'success')
+        except Exception as e:
+            print(e)
+            flash('Oops, something went wrong!', 'danger')
 
         return redirect(url_for('dashboard'))
 
