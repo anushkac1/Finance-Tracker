@@ -1,7 +1,8 @@
 import sqlite3
 from datetime import datetime
+import calendar
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from passlib.hash import pbkdf2_sha256 as sha256
 
 from db import get_db, init_db_command
@@ -12,7 +13,7 @@ app.config['DATABASE'] = 'finance_tracker.db'
 app.cli.add_command(init_db_command)
 app.secret_key = "TEST_SECRET"
 
-#--
+
 @app.route('/register', methods = ['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -96,10 +97,6 @@ def logout():
 def home():
     return redirect(url_for('login'))
 
-
-# Add necessary imports
-from flask import render_template
-
 @app.route('/dashboard')
 @login_required
 def dashboard():
@@ -109,11 +106,10 @@ def dashboard():
         'email': session['email'],
         'lastName': session['lastName']
     }
-
     db = get_db()
     cursor = db.cursor()
     cursor.execute('''
-        SELECT E.Item, E.Amount, E.Date, C.CategoryName, PM.PaymentMethodName
+        SELECT E.Item, E.Amount, E.Date, C.CategoryName, PM.PaymentMethodName, EMP.ExpenseID
         FROM ExpenseItem E
         LEFT JOIN Category C ON E.CategoryID = C.CategoryID
         LEFT JOIN ExpensePaymentMethod EMP ON E.ExpenseID = EMP.ExpenseID
@@ -122,14 +118,32 @@ def dashboard():
     ''', (user['userId'],))
     expenses = cursor.fetchall()
 
-    currentdatetime = datetime.now()
-    currentMonth = currentdatetime.strftime('%B')
-    cursor.execute('SELECT SUM(BudgetAmount) AS TotalBudget FROM Budget WHERE Month = ? AND UserID = ?',
-                   (currentMonth, user['userId']))
-    budget = cursor.fetchone()
-    totalBudget = budget['TotalBudget']
+    currentMonth = datetime.now().strftime('%B')
+    cursor.execute(
+        '''SELECT SUM(BudgetAmount) FROM Budget 
+           WHERE UserID = ? AND Month = ?''',
+        (user['userId'], currentMonth))
+    totalBudget = cursor.fetchone()[0] or 0
+    cursor.execute(
+        '''SELECT SUM(Amount) FROM ExpenseItem 
+           WHERE UserID = ? AND strftime('%m', Date) = strftime('%m', 'now')''',
+        (user['userId'],))
+    totalSpending = cursor.fetchone()[0] or 0
+    budgetStatus = 'over' if totalSpending > totalBudget else 'within'
 
-    return render_template('Authenticated/dashboard.html', user=user, expenses=expenses)
+    cursor.execute('''
+        SELECT strftime('%m', Date) as Month, SUM(Amount) as TotalAmount
+        FROM ExpenseItem 
+        WHERE UserID = ? 
+        GROUP BY Month
+    ''', (user['userId'],))
+    monthly_expenses = cursor.fetchall()
+    month_labels = [calendar.month_abbr[int(expense['Month'])] for expense in monthly_expenses]
+    expense_amounts = [expense['TotalAmount'] for expense in monthly_expenses]
+
+    return render_template('Authenticated/dashboard.html', user=user, expenses=expenses, budgetStatus=budgetStatus,
+                           totalBudget=totalBudget, totalSpending=totalSpending,
+                           month_labels=month_labels, expense_amounts=expense_amounts)
 
 
 @app.route('/')
@@ -384,5 +398,17 @@ def budget():
     return render_template('Authenticated/budget.html', categories=categories)
 
 
+@app.route('/delete-expense/<int:expense_id>', methods=['GET'])
+@login_required
+def deleteExpense(expense_id):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('DELETE FROM ExpensePaymentMethod WHERE ExpenseID = ?', (expense_id,))
+    db.commit()
+    cursor.execute('DELETE FROM ExpenseItem WHERE ExpenseID = ? AND UserID = ?', (expense_id, session['userID']))
+    db.commit()
+
+    flash('Expense deleted successfully.', 'success')
+    return redirect(url_for('dashboard'))
 if __name__ == '__main__':
     app.run()
