@@ -150,8 +150,8 @@ def dashboard():
         GROUP BY C.CategoryName
     ''', (session['userID'],))
     rawCategoryExpenses = cursor.fetchall()
-    categoryExpenses = [{'CategoryName': row['CategoryName'], 'TotalAmount': row['TotalAmount']} for row in rawCategoryExpenses]
-
+    categoryExpenses = [{'CategoryName': row['CategoryName'], 'TotalAmount': row['TotalAmount']} for row in
+                        rawCategoryExpenses]
 
     return render_template('Authenticated/dashboard.html', user = user, expenses = expenses,
                            budgetStatus = budgetStatus,
@@ -373,7 +373,7 @@ def managePayments():
                            paymentMethodInUse = paymentMethodInUse)
 
 
-@app.route('/budget', methods=['GET', 'POST'])
+@app.route('/budget', methods = ['GET', 'POST'])
 @login_required
 def budget():
     db = get_db()
@@ -397,7 +397,6 @@ def budget():
             flash('Oops, something went wrong!', 'danger')
         return redirect(url_for('dashboard'))
     return render_template('Authenticated/budget.html')
-
 
 
 @app.route('/delete-expense/<int:expense_id>', methods = ['GET'])

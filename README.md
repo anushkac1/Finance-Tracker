@@ -2,7 +2,8 @@
 
 ## Overview
 
-**157AExpenseTracker** is a full-stack expense tracker application that utilizes an SQL database to manage transactions, budgets, add payment methods, and visualize spending habits through charts.
+**157AExpenseTracker** is a full-stack expense tracker application that utilizes an SQL database to manage transactions,
+budgets, add payment methods, and visualize spending habits through charts.
 
 ## Getting Started
 
@@ -19,17 +20,18 @@ To download and run the application, follow these steps:
 
 4. Ensure that you are in the project folder.
 
-5. Activate the virtual environment. The command may vary based on your IDE or computer and used to enter venv (virtual environment). 
+5. Activate the virtual environment. The command may vary based on your IDE or computer and used to enter venv (virtual
+   environment).
 
    source venv/bin/activate
 
 6. Run the application using the following command (sets to default port 5000):
-   
-   python app.py 
+
+   python app.py
 
 7. Click the link to view the application.
-   
-9. To exit the application, use Ctrl+C in the terminal and re-enter via the python app.py command. 
+
+9. To exit the application, use Ctrl+C in the terminal and re-enter via the python app.py command.
 
 Alternatively, you can run the application using the green run arrow in your IDE and stop it with the red square
 

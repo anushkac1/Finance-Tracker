@@ -21,8 +21,8 @@ CREATE TABLE User
 CREATE TABLE Category
 (
     CategoryID   INTEGER PRIMARY KEY AUTOINCREMENT,
-    UserID       INTEGER     NOT NULL,
-    CategoryName TEXT  NOT NULL
+    UserID       INTEGER NOT NULL,
+    CategoryName TEXT    NOT NULL
 );
 
 -- ExpenseItem table
