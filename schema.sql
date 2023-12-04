@@ -21,6 +21,7 @@ CREATE TABLE User
 CREATE TABLE Category
 (
     CategoryID   INTEGER PRIMARY KEY AUTOINCREMENT,
+    UserID       INTEGER     NOT NULL,
     CategoryName TEXT UNIQUE NOT NULL
 );
 
@@ -61,11 +62,9 @@ CREATE TABLE Budget
 (
     BudgetID     INTEGER PRIMARY KEY AUTOINCREMENT,
     UserID       INTEGER NOT NULL,
-    CategoryID   INTEGER NOT NULL,
     Month        TEXT    NOT NULL,
     BudgetAmount REAL    NOT NULL,
-    FOREIGN KEY (UserID) REFERENCES User (UserID) ON DELETE CASCADE,
-    FOREIGN KEY (CategoryID) REFERENCES Category (CategoryID)
+    FOREIGN KEY (UserID) REFERENCES User (UserID) ON DELETE CASCADE
 );
 
 -- MonthlySummary table

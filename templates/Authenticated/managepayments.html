@@ -30,7 +30,8 @@
                 <select class="form-select" id="paymentMethodId" name="paymentMethodId">
                     {% if paymentMethodInUse %}
                         <div class="alert alert-warning">
-                            <strong>Warning:</strong> These expenses are associated with this payment method and need a replacement.
+                            <strong>Warning:</strong> These expenses are associated with this payment method and need a
+                            replacement.
                         </div>
                         <ul>
                             {% for item in expenseItems %}
@@ -68,7 +69,7 @@
 {% endblock %}
 
 {% block extra_scripts %}
-        <script>
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
             document.body.addEventListener('change', function (event) {
                 if (event.target && event.target.id === 'replacementMethod') {

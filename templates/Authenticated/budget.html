@@ -3,24 +3,24 @@
 {% block title %}Monthly Budget Form - FinTrack{% endblock %}
 
 {% block content %}
-<div class="container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category }}">{{ message }}</div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-</div>
-<div class="container mt-4">
-    <h2 class="mb-4">Monthly Budget Form</h2>
-    <form method="POST" id="budgetForm" action="{{ url_for('budget') }}">
-        <div class="mb-3">
-            <label for="budgetAmount" class="form-label">Budget Amount</label>
-            <input type="number" class="form-control" id="budgetAmount" name="budgetAmount" step="0.01" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Set Monthly Budget</button>
-    </form>
-</div>
-</div>
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    <div class="container mt-4">
+        <h2 class="mb-4">Monthly Budget Form</h2>
+        <form method="POST" id="budgetForm" action="{{ url_for('budget') }}">
+            <div class="mb-3">
+                <label for="budgetAmount" class="form-label">Budget Amount</label>
+                <input type="number" class="form-control" id="budgetAmount" name="budgetAmount" step="0.01" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Set Monthly Budget</button>
+        </form>
+    </div>
+    </div>
 {% endblock %}

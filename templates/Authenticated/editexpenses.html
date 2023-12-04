@@ -3,75 +3,80 @@
 {% block title %}Expense Form - FinTrack{% endblock %}
 
 {% block content %}
-<div class="container">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category }}">{{ message }}</div>
-    {% endfor %}
-    {% endif %}
-    {% endwith %}
-</div>
-<div class="container mt-4">
-    <h2 class="mb-4">Expense Form</h2>
-    <form method="POST" id="expenseForm">
-        <div class="mb-3">
-            <label for="item" class="form-label">Item</label>
-            <input type="text" class="form-control" id="item" name="item" required value="{{ expense.Item }}">
-        </div>
-        <div class="mb-3">
-            <label for="amount" class="form-label">Amount</label>
-            <input type="number" class="form-control" id="amount" name="amount" step="0.01" required value="{{ expense.amount }}">
-        </div>
-        <div class="mb-3">
-            <label for="date" class="form-label">Date</label>
-            <input type="date" class="form-control" id="date" name="date" required value="{{ expense.date }}">
-        </div>
-        <div class="mb-3">
-            <label for="category-select" class="form-label">Category</label>
-            <select class="form-select" id="category-select" name="category">
-                <option value="">Select a Category</option>
-                {% for category in categories %}
-                <option value="{{ category.CategoryID }}" {% if category.CategoryID == expense.CategoryID %} selected {% endif %}>{{ category.CategoryName }}</option>
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
                 {% endfor %}
-                <option value="new-category">Add New Category...</option>
-            </select>
-            <input type="text" class="form-control mt-3" id="new-category" name="new-category" style="display: none;"
-                placeholder="Enter new category">
-        </div>
-        <div class="mb-3">
-            <label for="payment-method-select" class="form-label">Payment Method</label>
-            <select class="form-select" id="payment-method-select" name="payment-method-select">
-                <option value="">Select a Payment Method</option>
-                {% for method in payment_methods %}
-                <option value="{{ method.PaymentMethodID }}" {% if method.PaymentMethodID == expense.PaymentMethodID %} selected {% endif %}>{{ method.PaymentMethodName }}</option>
-                {% endfor %}
-                <option value="new-method">Add New Payment Method...</option>
-            </select>
-            <input type="text" class="form-control mt-3" id="new-payment-method" name="new-payment-method"
-                style="display: none;" placeholder="Enter new payment method">
-        </div>
-        <button type="submit" class="btn btn-primary">Update Expense</button>
-    </form>
-</div>
-</div>
+            {% endif %}
+        {% endwith %}
+    </div>
+    <div class="container mt-4">
+        <h2 class="mb-4">Expense Form</h2>
+        <form method="POST" id="expenseForm">
+            <div class="mb-3">
+                <label for="item" class="form-label">Item</label>
+                <input type="text" class="form-control" id="item" name="item" required value="{{ expense.Item }}">
+            </div>
+            <div class="mb-3">
+                <label for="amount" class="form-label">Amount</label>
+                <input type="number" class="form-control" id="amount" name="amount" step="0.01" required
+                       value="{{ expense.amount }}">
+            </div>
+            <div class="mb-3">
+                <label for="date" class="form-label">Date</label>
+                <input type="date" class="form-control" id="date" name="date" required value="{{ expense.date }}">
+            </div>
+            <div class="mb-3">
+                <label for="category-select" class="form-label">Category</label>
+                <select class="form-select" id="category-select" name="category">
+                    <option value="">Select a Category</option>
+                    {% for category in categories %}
+                        <option value="{{ category.CategoryID }}" {% if category.CategoryID == expense.CategoryID %}
+                                selected {% endif %}>{{ category.CategoryName }}</option>
+                    {% endfor %}
+                    <option value="new-category">Add New Category...</option>
+                </select>
+                <input type="text" class="form-control mt-3" id="new-category" name="new-category"
+                       style="display: none;"
+                       placeholder="Enter new category">
+            </div>
+            <div class="mb-3">
+                <label for="payment-method-select" class="form-label">Payment Method</label>
+                <select class="form-select" id="payment-method-select" name="payment-method-select">
+                    <option value="">Select a Payment Method</option>
+                    {% for method in payment_methods %}
+                        <option value="{{ method.PaymentMethodID }}"
+                                {% if method.PaymentMethodID == expense.PaymentMethodID %}
+                                selected {% endif %}>{{ method.PaymentMethodName }}</option>
+                    {% endfor %}
+                    <option value="new-method">Add New Payment Method...</option>
+                </select>
+                <input type="text" class="form-control mt-3" id="new-payment-method" name="new-payment-method"
+                       style="display: none;" placeholder="Enter new payment method">
+            </div>
+            <button type="submit" class="btn btn-primary">Update Expense</button>
+        </form>
+    </div>
+    </div>
 {% endblock %}
 
 {% block extra_scripts %}
-<script>
-    function toggleNewCategoryInput() {
-        var categorySelect = document.getElementById('category-select');
-        var newCategoryInput = document.getElementById('new-category');
-        newCategoryInput.style.display = categorySelect.value === 'new-category' ? 'block' : 'none';
-    }
+    <script>
+        function toggleNewCategoryInput() {
+            var categorySelect = document.getElementById('category-select');
+            var newCategoryInput = document.getElementById('new-category');
+            newCategoryInput.style.display = categorySelect.value === 'new-category' ? 'block' : 'none';
+        }
 
-    function toggleNewPaymentMethodInput() {
-        var paymentMethodSelect = document.getElementById('payment-method-select');
-        var newPaymentMethodInput = document.getElementById('new-payment-method');
-        newPaymentMethodInput.style.display = paymentMethodSelect.value === 'new-method' ? 'block' : 'none';
-    }
+        function toggleNewPaymentMethodInput() {
+            var paymentMethodSelect = document.getElementById('payment-method-select');
+            var newPaymentMethodInput = document.getElementById('new-payment-method');
+            newPaymentMethodInput.style.display = paymentMethodSelect.value === 'new-method' ? 'block' : 'none';
+        }
 
-    document.getElementById('category-select').addEventListener('change', toggleNewCategoryInput);
-    document.getElementById('payment-method-select').addEventListener('change', toggleNewPaymentMethodInput);
-</script>
+        document.getElementById('category-select').addEventListener('change', toggleNewCategoryInput);
+        document.getElementById('payment-method-select').addEventListener('change', toggleNewPaymentMethodInput);
+    </script>
 {% endblock %}

@@ -1,8 +1,8 @@
+import calendar
 import sqlite3
 from datetime import datetime
-import calendar
 
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from passlib.hash import pbkdf2_sha256 as sha256
 
 from db import get_db, init_db_command
@@ -96,6 +96,7 @@ def logout():
 def home():
     return redirect(url_for('login'))
 
+
 @app.route('/dashboard')
 @login_required
 def dashboard():
@@ -137,13 +138,26 @@ def dashboard():
         WHERE UserID = ? 
         GROUP BY Month
     ''', (user['userId'],))
-    monthly_expenses = cursor.fetchall()
-    month_labels = [calendar.month_abbr[int(expense['Month'])] for expense in monthly_expenses]
-    expense_amounts = [expense['TotalAmount'] for expense in monthly_expenses]
+    monthlyExpenses = cursor.fetchall()
+    monthLabels = [calendar.month_abbr[int(expense['Month'])] for expense in monthlyExpenses]
+    expenseAmounts = [expense['TotalAmount'] for expense in monthlyExpenses]
 
-    return render_template('Authenticated/dashboard.html', user=user, expenses=expenses, budgetStatus=budgetStatus,
-                           totalBudget=totalBudget, totalSpending=totalSpending,
-                           month_labels=month_labels, expense_amounts=expense_amounts)
+    cursor.execute('''
+        SELECT C.CategoryName, SUM(E.Amount) as TotalAmount
+        FROM ExpenseItem E
+        JOIN Category C ON E.CategoryID = C.CategoryID
+        WHERE E.UserID = ? AND strftime('%m', E.Date) = strftime('%m', 'now')
+        GROUP BY C.CategoryName
+    ''', (session['userID'],))
+    rawCategoryExpenses = cursor.fetchall()
+    categoryExpenses = [{'CategoryName': row['CategoryName'], 'TotalAmount': row['TotalAmount']} for row in rawCategoryExpenses]
+
+
+    return render_template('Authenticated/dashboard.html', user = user, expenses = expenses,
+                           budgetStatus = budgetStatus,
+                           totalBudget = totalBudget, totalSpending = totalSpending,
+                           month_labels = monthLabels, expense_amounts = expenseAmounts,
+                           category_expenses = categoryExpenses)
 
 
 @app.route('/')
@@ -165,6 +179,7 @@ def profile():
                 "DELETE FROM Budget WHERE UserID = ?",
                 "DELETE FROM MonthlySummary WHERE UserID = ?",
                 "DELETE FROM PaymentMethod WHERE UserID = ?",
+                "DELETE FROM Category WHERE UserID = ?",
                 "DELETE FROM User WHERE UserID = ?"
             ]
             for query in deleteQueries:
@@ -199,7 +214,7 @@ def expenseForm():
     db = get_db()
     cursor = db.cursor()
 
-    cursor.execute('SELECT CategoryID, CategoryName FROM Category')
+    cursor.execute('SELECT CategoryID, CategoryName FROM Category WHERE UserID = ?', (session['userID'],))
     categories = cursor.fetchall()
     cursor.execute('SELECT PaymentMethodID, PaymentMethodName FROM PaymentMethod WHERE UserID = ?',
                    (session['userID'],))
@@ -215,7 +230,8 @@ def expenseForm():
         newPaymentMethodName = request.form.get('new-payment-method', None)
         categoryId = None
         if selectedCategory == 'new-category' and newCategoryName:
-            cursor.execute('INSERT INTO Category (CategoryName) VALUES (?)', (newCategoryName,))
+            cursor.execute('INSERT INTO Category (CategoryName, UserID) VALUES (?, ?)',
+                           (newCategoryName, session['userID']))
             db.commit()
             categoryId = cursor.lastrowid
         elif selectedCategory:
@@ -252,17 +268,18 @@ def editExpense(expenseID):
     db = get_db()
     cursor = db.cursor()
     if request.method == 'GET':
-        cursor.execute('SELECT * FROM ExpenseItem WHERE UserID = ?', (session['userID'],))
+        cursor.execute('SELECT * FROM ExpenseItem WHERE ExpenseID = ? AND UserID = ?', (expenseID, session['userID']))
         expense = cursor.fetchone()
         if expense is None:
             return redirect(url_for('expenseForm'))
-        cursor.execute('SELECT CategoryID, CategoryName FROM Category')
+        cursor.execute('SELECT CategoryID, CategoryName FROM Category WHERE UserID = ?', (session['userID'],))
         categories = cursor.fetchall()
         cursor.execute('SELECT PaymentMethodID, PaymentMethodName FROM PaymentMethod WHERE UserID = ?',
                        (session['userID'],))
         paymentMethods = cursor.fetchall()
         return render_template('Authenticated/editexpenses.html', expense = expense, categories = categories,
                                payment_methods = paymentMethods)
+
     if request.method == 'POST':
         item = request.form.get('item')
         amount = request.form.get('amount')
@@ -272,7 +289,8 @@ def editExpense(expenseID):
         paymentMethodId = request.form.get('payment-method-select')
         newPaymentMethod = request.form.get('new-payment-method')
         if newCategory:
-            cursor.execute('INSERT INTO Category (CategoryName) VALUES (?)', (newCategory,))
+            cursor.execute('INSERT INTO Category (CategoryName, UserID) VALUES (?, ?)',
+                           (newCategory, session['userID']))
             db.commit()
             categoryId = cursor.lastrowid
         if newPaymentMethod:
@@ -292,6 +310,7 @@ def editExpense(expenseID):
             WHERE ExpenseID = ?
         ''', (paymentMethodId, expenseID))
         db.commit()
+
         return redirect(url_for('dashboard'))
 
 
@@ -346,21 +365,18 @@ def managePayments():
     return render_template('Authenticated/managepayments.html', paymentMethods = paymentMethods,
                            paymentMethodInUse = paymentMethodInUse)
 
-@app.route('/budget', methods=['GET', 'POST'])
+
+@app.route('/budget', methods = ['GET', 'POST'])
 @login_required
 def budget():
     db = get_db()
     cursor = db.cursor()
-
-    cursor.execute('SELECT CategoryID, CategoryName FROM Category')
-    categories = cursor.fetchall()
-
     if request.method == 'POST':
         budget_amount = float(request.form['budgetAmount'])
 
         try:
-            cursor.execute('INSERT INTO Budget (UserID, CategoryID, Month, BudgetAmount) VALUES (?, ?, ?, ?)',
-                           (session['userID'], None, 'current_month', budget_amount))
+            cursor.execute('INSERT INTO Budget (UserID, Month, BudgetAmount) VALUES (?, ?, ?, ?)',
+                           (session['userID'], 'current_month', budget_amount))
             db.commit()
 
             flash('Monthly budget set successfully!', 'success')
@@ -370,10 +386,10 @@ def budget():
 
         return redirect(url_for('dashboard'))
 
-    return render_template('Authenticated/budget.html', categories=categories)
+    return render_template('Authenticated/budget.html')
 
 
-@app.route('/delete-expense/<int:expense_id>', methods=['GET'])
+@app.route('/delete-expense/<int:expense_id>', methods = ['GET'])
 @login_required
 def deleteExpense(expense_id):
     db = get_db()
@@ -385,5 +401,7 @@ def deleteExpense(expense_id):
 
     flash('Expense deleted successfully.', 'success')
     return redirect(url_for('dashboard'))
+
+
 if __name__ == '__main__':
     app.run()
