@@ -373,25 +373,31 @@ def managePayments():
                            paymentMethodInUse = paymentMethodInUse)
 
 
-@app.route('/budget', methods = ['GET', 'POST'])
+@app.route('/budget', methods=['GET', 'POST'])
 @login_required
 def budget():
     db = get_db()
     cursor = db.cursor()
+    currMonth = datetime.now().strftime('%B')
     if request.method == 'POST':
-        budget_amount = float(request.form['budgetAmount'])
+        budgetAmount = float(request.form['budgetAmount'])
+        cursor.execute('SELECT BudgetID FROM Budget WHERE UserID = ? AND Month = ?', (session['userID'], currMonth))
+        existingBudget = cursor.fetchone()
         try:
-            cursor.execute('INSERT INTO Budget (UserID, Month, BudgetAmount) VALUES (?, ?, ?, ?)',
-                           (session['userID'], 'current_month', budget_amount))
+            if existingBudget:
+                cursor.execute('UPDATE Budget SET BudgetAmount = ? WHERE UserID = ? AND Month = ?',
+                               (budgetAmount, session['userID'], currMonth))
+            else:
+                cursor.execute('INSERT INTO Budget (UserID, Month, BudgetAmount) VALUES (?, ?, ?)',
+                               (session['userID'], currMonth, budgetAmount))
             db.commit()
-
             flash('Monthly budget set successfully!', 'success')
         except Exception as e:
             print(e)
             flash('Oops, something went wrong!', 'danger')
-
         return redirect(url_for('dashboard'))
     return render_template('Authenticated/budget.html')
+
 
 
 @app.route('/delete-expense/<int:expense_id>', methods = ['GET'])
