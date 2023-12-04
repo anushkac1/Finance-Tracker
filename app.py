@@ -213,14 +213,13 @@ def profile():
 def expenseForm():
     db = get_db()
     cursor = db.cursor()
-
     cursor.execute('SELECT CategoryID, CategoryName FROM Category WHERE UserID = ?', (session['userID'],))
     categories = cursor.fetchall()
     cursor.execute('SELECT PaymentMethodID, PaymentMethodName FROM PaymentMethod WHERE UserID = ?',
                    (session['userID'],))
     paymentMethods = cursor.fetchall()
+
     if request.method == 'POST':
-        print(request.form)
         item = request.form['item']
         amount = float(request.form['amount'])
         date = request.form['date']
@@ -229,13 +228,21 @@ def expenseForm():
         selectedPaymentMethod = request.form['payment-method-select']
         newPaymentMethodName = request.form.get('new-payment-method', None)
         categoryId = None
+
         if selectedCategory == 'new-category' and newCategoryName:
-            cursor.execute('INSERT INTO Category (CategoryName, UserID) VALUES (?, ?)',
+            cursor.execute('SELECT CategoryID FROM Category WHERE CategoryName = ? AND UserID = ?',
                            (newCategoryName, session['userID']))
-            db.commit()
-            categoryId = cursor.lastrowid
-        elif selectedCategory:
-            categoryId = int(selectedCategory)
+            existingCategory = cursor.fetchone()
+            if existingCategory:
+                categoryId = existingCategory[0]
+            else:
+                cursor.execute('INSERT INTO Category (CategoryName, UserID) VALUES (?, ?)',
+                               (newCategoryName, session['userID']))
+                db.commit()
+                categoryId = cursor.lastrowid
+        else:
+            categoryId = int(selectedCategory) if selectedCategory else None
+
         paymentMethodId = None
         if selectedPaymentMethod == 'new-method' and newPaymentMethodName:
             cursor.execute('INSERT INTO PaymentMethod (PaymentMethodName, UserID) VALUES (?, ?)',
@@ -373,7 +380,6 @@ def budget():
     cursor = db.cursor()
     if request.method == 'POST':
         budget_amount = float(request.form['budgetAmount'])
-
         try:
             cursor.execute('INSERT INTO Budget (UserID, Month, BudgetAmount) VALUES (?, ?, ?, ?)',
                            (session['userID'], 'current_month', budget_amount))
@@ -385,7 +391,6 @@ def budget():
             flash('Oops, something went wrong!', 'danger')
 
         return redirect(url_for('dashboard'))
-
     return render_template('Authenticated/budget.html')
 
 
