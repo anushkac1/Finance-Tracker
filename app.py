@@ -264,8 +264,9 @@ def expenseForm():
         else:
             flash('Please select valid category and payment method.', 'danger')
 
-        return redirect(url_for('dashboard'))
 
+        return redirect(url_for('dashboard'))
+        print("erro")
     return render_template('Authenticated/expenseform.html', categories = categories, payment_methods = paymentMethods)
 
 
